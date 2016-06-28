@@ -11,6 +11,8 @@ library.
 # Status
 Add (require 'helm-itunes-playlists) to your .emacs or init.el
 
+Modify "helm-itunes-playlist-exclusion-list" to exclude playlists via emacs regular expressions
+
 Currently only supports OS X.
 
 ### Bugs:
