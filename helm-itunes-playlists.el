@@ -102,5 +102,5 @@ end tell"))
     (message "Sorry, helm-itunes-playlist does not support %S" system-type)))
 
 
-(provide 'helm-itunes-playlist)
+(provide 'helm-itunes-playlists)
 ;;; helm-itunes.el ends here
