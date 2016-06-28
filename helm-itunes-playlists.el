@@ -28,7 +28,7 @@
 
 ;; Playlists to exclude from helm results.  Note special character for iTunesU and line break on Voice Memos.
 (defvar helm-itunes-playlist-exclusion-list
-  '("Music Videos" "Movies" "^AB" "Home Videos" "iTunes U" "Audiobooks" "Books" "PDFs" "Purchased on Professor" "TV Shows" "Podcasts" "Voice Memos\n" "^zz" "^Com"))
+  '("Music Videos" "Movies" "Home Videos" "iTunes U" "Audiobooks" "Books" "PDFs" "Purchased on Professor" "TV Shows" "Podcasts" "Voice Memos\n"))
 
 ;; AppleScript that returns all playlists
 
