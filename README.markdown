@@ -16,5 +16,4 @@ Currently only supports OS X.
 ### Bugs:
 
 # Credits
-Inspired by Kris Jenkins' [helm-spotify](https://github.com/krisajenkins/helm-spotify).
-[helm-itunes](https://github.com/anschwa/helm-itunes).
+Inspired by Kris Jenkins' [helm-spotify](https://github.com/krisajenkins/helm-spotify) and Adam Schwartz's [helm-itunes](https://github.com/anschwa/helm-itunes).
