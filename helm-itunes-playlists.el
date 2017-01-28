@@ -2,15 +2,15 @@
 ;; Copyright 2014 Adam Schwartz
 ;;
 ;; Author: Derek Ellis <derek.ellis@gmail.com>
-;; URL: https://github.com/dellis2k/helm-itunes-playlist
+;; URL: https://github.com/dellis2k/helm-itunes-playlists
 ;;
 ;; Created: 2016-05-30
-;; Version: 0.0.1
+;; Version: 0.0.2
 ;; Package-Requires: ((helm "1.6.1"))
 
 ;;; Commentary:
 ;;
-;; A helm interface for iTunes playlists that sorts and uses regex to remove any unwanted playlist from helm results.
+;; A helm interface for iTunes playlists that sorts and uses regex to remove any unwanted playlists from helm results.
 ;;
 ;;
 ;; Bugs:
@@ -27,12 +27,12 @@
 (require 'helm)
 
 ;; Playlists to exclude from helm results.  Note special character for iTunesU and line break on Voice Memos.
-(defvar helm-itunes-playlist-exclusion-list
-  '("Music Videos" "Movies" "Home Videos" "iTunes U" "Audiobooks" "Books" "PDFs" "Purchased on Professor" "TV Shows" "Podcasts" "Voice Memos\n"))
+(defvar helm-itunes-playlists-exclusion-list
+  '("Music Videos" "Movies" "^AB" "Home Videos" "iTunes U" "Audiobooks" "Books" "PDFs" "Purchased on Professor" "TV Shows" "Podcasts" "Voice Memos\n" "^zz" "^Com"))
 
 ;; AppleScript that returns all playlists
 
-(defun helm-itunes-playlist-applescript ()
+(defun helm-itunes-playlists-applescript ()
   (format "
 tell application \"iTunes\"
  return name of every user playlist
@@ -40,14 +40,14 @@ end tell"))
   
 ;; Return a list of playlists from the AppleScript.
 
-(defun helm-itunes-playlist-get-playlists ()
+(defun helm-itunes-playlists-get-playlists ()
   "Return a list of playlists in your iTunes library."
   (sort (split-string (shell-command-to-string
-   (format "osascript -e %S" (helm-itunes-playlist-applescript)))
+   (format "osascript -e %S" (helm-itunes-playlists-applescript)))
   "\\,\s") 'string-lessp)) 
 
 
-(defun helm-itunes-playlist-grep-list (pattern input)
+(defun helm-itunes-playlists-grep-list (pattern input)
    "Grep for regexp PATTERN in INPUT.
  Each element of INPUT must be either a string or a list of string.
  grep-list will recurse through these lists."
@@ -65,42 +65,56 @@ end tell"))
      (nreverse result)))
 
 ;!
-(defun helm-itunes-playlist-get-clean-playlists (pattern-list input)
+(defun helm-itunes-playlists-get-clean-playlists (pattern-list input)
   "grep over a list"
   (loop for regex in pattern-list do	
-	(setf input (helm-itunes-playlist-grep-list regex input)))
+	(setf input (helm-itunes-playlists-grep-list regex input)))
   input)
 
 ;!
-(defun helm-itunes-playlist-helm-search ()
-  (helm-itunes-playlist-get-clean-playlists helm-itunes-playlist-exclusion-list (helm-itunes-playlist-get-playlists)))
+(defun helm-itunes-playlists-helm-search ()
+  (helm-itunes-playlists-get-clean-playlists helm-itunes-playlists-exclusion-list (helm-itunes-playlists-get-playlists)))
 
 ;; play the playlist
 ;!
-(defun helm-itunes-playlist-play (playlist)
-  (shell-command (format "osascript -e 'tell application \"iTunes\" to play user playlist %S'"
-                         playlist)))
+(defun helm-itunes-playlists-play (playlist)
+  (shell-command (format "osascript -e 'tell application \"iTunes\" to play user playlist %S'" playlist)))
+
+;;(setq helm-input-idle-delay 0.1)
 
 ;;---------- Helm Functions ----------;;
+;;(setq helm-exit-idle-delay 0)  ;; this no worky
+;;(defun helm-source-itunes-playlist
+;;  (helm-build-async-source "iTunes Playlist Search"
+;;    :volatile t
+;;    :candiates 'helm-itunes-playlist-helm-search
+;;    :multiline t
+;;    :requires-pattern 0
+;;    :action '(("Play Playlist" . (helm-itunes-playlist-play candidate)))))
 
-(defvar helm-source-itunes-playlist
-  (helm-build-async-source "iTunes Playlist Search"
-    ;;:candidates-process #'helm-itunes-playlist-get-playlists
-    :candidates-process #'helm-itunes-playlist-helm-search
-    :volatile t
-    :multiline t
-    :requires-pattern 0
-    :action '(("Play Playlist" . helm-itunes-playlist-play))))
+
+(setq helm-source-itunes-playlists
+      '((name . "HELM iTunes Playlists")
+        (candidates . helm-itunes-playlists-helm-search)
+	(multiline . t)
+	(volatile . t)
+	(requires-pattern . 0)
+	(prompt . "iTunes Playlist: ")
+	(buffer . "*helm-itunes-playlists*")
+        (action . (lambda (candidate)
+                    ;;(message "You chose %s" candidate)
+		    (helm-itunes-playlists-play candidate)))))
+
+
 
 ;;;###autoload
-(defun helm-itunes-playlist ()
+(defun helm-itunes-playlists ()
   "Bring up an iTunes playlist search interface in helm."
   (interactive)
   (if (eq system-type 'darwin)
-      (helm :sources 'helm-source-itunes-playlist
-            :buffer "*helm-itunes-playlist*")
+      (helm :sources 'helm-source-itunes-playlists)
     (message "Sorry, helm-itunes-playlist does not support %S" system-type)))
 
 
 (provide 'helm-itunes-playlists)
-;;; helm-itunes.el ends here
+;;; helm-itunes-playlists.el ends here
